@@ -1,0 +1,15 @@
+.unauthorized-container {
+    text-align: center;
+    margin-top: 100px;
+  }
+  
+  .unauthorized-title {
+    font-size: 24px;
+    color: #f00;
+  }
+  
+  .unauthorized-message {
+    font-size: 16px;
+    color: #666;
+  }
+  
