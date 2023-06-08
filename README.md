@@ -3,7 +3,7 @@
 Clone the project into local and cd into todo-task directory
 
 ```bash
-git clone https://github.com/Navyana/todo-task.git
+git clone https://github.com/navyana-srivalli/todo-app
 cd todo-task
 ```
 
