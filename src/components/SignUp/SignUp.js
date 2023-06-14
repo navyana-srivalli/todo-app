@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import { signUp } from '../../services/userService';
 import './SignUp.css';
 import axios from 'axios';
 
@@ -13,10 +14,7 @@ const handleRegister = async (e) => {
   e.preventDefault();
 
   try {
-    const response = await axios.post('http://localhost:8080/api/register/', {
-      username,
-      password,
-    });
+    const response = await signUp(username,password);
 
     if (response.status === 200) {
       alert("Successfully registered!!")

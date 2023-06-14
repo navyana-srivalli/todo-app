@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import { login } from '../../services/userService';
 import './Login.css';
 import axios from 'axios';
 
@@ -12,10 +13,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8080/api/login/', {
-        username,
-        password,
-      }, { withCredentials: true });
+      const response = await login(username,password)
       if (response.status === 200) {
         const data = response.data;
         navigate("/todo");

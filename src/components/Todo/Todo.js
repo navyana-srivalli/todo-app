@@ -8,6 +8,7 @@ import './Todo.css'
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import { useNavigate } from 'react-router-dom';
+import { fetch, update, add, remove } from '../../services/todoService';
 
 const TodoApp = () => {
     const [todos, setTodos] = useState([]);
@@ -20,24 +21,20 @@ const TodoApp = () => {
     }, []);
   
     const fetchTodos = async () => {
-      try {
+        try {
             const accessToken = document.cookie.split("=")[1];
             if(!accessToken){
                 navigate('/error');
             }else{
-                const response = await axios.get('http://localhost:8080/todo/', {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                });
-                setTodos(response.data); 
+                const response = await fetch(accessToken);
+                setTodos(response); 
             }  
         }
         catch (error) {
             console.error('Error:', error.message);
         }
     };
-  
+    
     const handleInputChange = (e) => {
       setNewTodo(e.target.value);
     };
@@ -46,16 +43,7 @@ const TodoApp = () => {
       if (newTodo.trim() !== '') {
         try{
             const accessToken = document.cookie.split("=")[1];
-            const response = await axios.post(
-                'http://localhost:8080/todo',
-                {title: newTodo},
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
+            const response = await add(newTodo, accessToken)
             if(response.status === 200){
                 fetchTodos();
                 setNewTodo('');
@@ -73,16 +61,7 @@ const TodoApp = () => {
         
         try {
             const accessToken = document.cookie.split("=")[1];
-            const response = await axios.put(
-              `http://localhost:8080/todo/${editedTodo.id}`,
-              { title: editedTodo.title },
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                  'Content-Type': 'application/json',
-                },
-              }
-            );
+            const response = await update(editedTodo.id, editedTodo.title, accessToken)
             if (response.status === 200) {
               fetchTodos();
               setEditedTodo('');
@@ -112,11 +91,7 @@ const TodoApp = () => {
     const handleDeleteTodo = async (id) => {
         try {
             const accessToken = document.cookie.split("=")[1];
-            const response = await axios.delete(`http://localhost:8080/todo/${id}`, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-            });
+            const response = await remove(id, accessToken);
             if (response.status === 200) {
                 fetchTodos();
             }
@@ -145,40 +120,43 @@ const TodoApp = () => {
             </div>
         
             <ul className='todo-list'>
-            {todos.map((todo, index) => (
-                <li key={todo.id} className='todo-item'>
-                    {editedTodo.id === todo.id ? (
-                        <>
-                            <input
-                            type="text"
-                            value={editedTodo.title}
-                            onChange={handleEditInputChange}
-                            className='edit-input'
-                            />
-                            <button className='save-button' onClick={handleUpdateTodo}>
-                                <FaCheck />
-                            </button>
-                            <button className='delete-button' onClick={()=>handleDeleteTodo(todo.id)} >
-                                <FaTrash />
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            {todo.title}
-                            <div className="icon-container">
-                                <button className='edit-button'onClick={()=>handleEditTodo(todo.id, todo.title)} >
-                                    <FaEdit />
-                                </button>
-                                <button className='delete-button'onClick={()=>handleDeleteTodo(todo.id)} >
-                                    <FaTrash />
-                                </button>
-                            </div>
-                        </>
-                    )}
+            {todos.map((todo, index) => {
+                if (editedTodo.id === todo.id) {
+                return (
+                    <li key={todo.id} className='todo-item'>
+                    <input
+                        type="text"
+                        value={editedTodo.title}
+                        onChange={handleEditInputChange}
+                        className='edit-input'
+                    />
+                    <button className='save-button' onClick={handleUpdateTodo}>
+                        <FaCheck />
+                    </button>
+                    <button className='delete-button' onClick={() => handleDeleteTodo(todo.id)}>
+                        <FaTrash />
+                    </button>
                     </li>
-                ))}
-                </ul>
-            </div>
+                );
+                } else {
+                    return (
+                        <li key={todo.id} className='todo-item'>
+                            {todo.title}
+                        <div className="icon-container">
+                        <button className='edit-button' onClick={() => handleEditTodo(todo.id, todo.title)}>
+                            <FaEdit />
+                        </button>
+                        <button className='delete-button' onClick={() => handleDeleteTodo(todo.id)}>
+                            <FaTrash />
+                        </button>
+                        </div>
+                        </li>
+                    );
+                }
+            })}
+        </ul>
+
+    </div>
             <Footer />
         </>
     );
